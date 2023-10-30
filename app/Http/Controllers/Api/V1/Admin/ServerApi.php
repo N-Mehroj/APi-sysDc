@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
-use App\Models\Servers;
+use App\Models\Api\V1\Admin\Servers;
 
 class ServerApi extends Controller
 {
@@ -53,9 +55,38 @@ class ServerApi extends Controller
      */
     public function store(Request $request)
     {
+        $locale = $request->header('Accept-Language');
+
+        if ($locale) {
+            app()->setLocale($locale);
+        }
+
         $data = $request->all();
         $obj = $data['storeServer'];
-
+        $validator = Validator::make($obj, [
+            'server_name' => 'required|string',
+            'server_ip' => 'required|ip',
+            'server_login' => 'required|string',
+            'server_password' => 'required|string',
+            'server_status' => 'required|boolean',
+            'server_userId' => 'required|numeric',
+            'server_type' => 'required',
+            'server_address' => 'required',
+            'server_port' => 'required|numeric',
+            'NS1_address' => 'required',
+            'NS2_address' => 'required',
+            'NS3_address' => 'required',
+            'NS4_address' => 'required',
+            'IP1_address' => 'required|ip',
+            'IP2_address' => 'required|ip',
+            'IP3_address' => 'required|ip',
+            'IP4_address' => 'required|ip',
+            'server_location' => 'required',
+            'server_description' => '',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
         $server = new Servers([
             'server_name' => $obj["server_name"],
             'server_ip' => $obj["server_ip"],
@@ -98,8 +129,32 @@ class ServerApi extends Controller
      */
     public function update(Request $request)
     {
+        $locale = $request->header('Accept-Language');
+
+        if ($locale) {
+            app()->setLocale($locale);
+        }
+
         $data = $request->all();
         $obj = $data['updateServer'];
+
+        $validator = Validator::make($obj, [
+            'server_name' => 'string',
+            'server_ip' => 'ip',
+            'server_login' => 'string',
+            'server_password' => 'string',
+            'server_status' => 'boolean',
+            'server_userId' => 'numeric',
+            'server_port' => 'numeric',
+            'IP1_address' => 'ip',
+            'IP2_address' => 'ip',
+            'IP3_address' => 'ip',
+            'IP4_address' => 'ip',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
 
         $server_id = $obj["server_id"];
 
@@ -139,7 +194,14 @@ class ServerApi extends Controller
      */
     public function destroy(Request $request)
     {
+        $locale = $request->header('Accept-Language');
+
+        if ($locale) {
+            app()->setLocale($locale);
+        }
+
         $id = $request->id;
+
         $destroy = Servers::find($id);
         if ($destroy != null) {
             $destroy->delete();

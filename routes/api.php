@@ -3,8 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\RatesApi;
-use App\Http\Controllers\ServerApi;
+use App\Http\Controllers\Api\V1\Admin\RatesApi;
+use App\Http\Controllers\Api\V1\Admin\ServerApi;
 
 
 /*

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1\Admin;
+
 
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\Controller;
 
 // use Illuminate\Support\Facades\Hash;
 
 // use Illuminate\Support\Facades\DB;
-// use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Validator;
 
-use App\Models\Rates;
+use App\Models\Api\V1\Admin\Rates;
 
 
 class RatesApi extends Controller
@@ -56,6 +57,13 @@ class RatesApi extends Controller
      */
     public function store(Request $request)
     {
+        $locale = $request->header('Accept-Language');
+
+        if ($locale) {
+            app()->setLocale($locale);
+        }
+
+
         $data = $request->all();
         $obj = $data['storeDefinition'];
 
@@ -68,6 +76,21 @@ class RatesApi extends Controller
         $daily_prices = $obj["daily_prices"];
         $monthly_prices = $obj["monthly_prices"];
         $yearly_prices = $obj["yearly_prices"];
+
+        $validator = Validator::make($obj, [
+            'definition_name' => 'required|string',
+            'server_number' => 'required|numeric',
+            'definition_status' => 'required|boolean',
+            'definition_userId' => 'required|numeric',
+            'definition_paymentStatus' => 'required',
+            'definition_publicStatus' => 'required',
+            'daily_prices' => 'required|numeric',
+            'monthly_prices' => 'required|numeric',
+            'yearly_prices' => 'required|numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         $rates = new Rates([
             'definition_name' => $definition_name,
@@ -100,11 +123,30 @@ class RatesApi extends Controller
      */
     public function update(Request $request)
     {
+        $locale = $request->header('Accept-Language');
 
+        if ($locale) {
+            app()->setLocale($locale);
+        }
         $data = $request->all();
         $obj = $data['updateDefinition'];
 
         $definition_id = $obj["definition_id"];
+        $validator = Validator::make($obj, [
+            'definition_id' =>'required|numeric',
+            'definition_name' => 'string',
+            'server_number' => 'numeric',
+            'definition_status' => 'boolean',
+            'definition_userId' => 'numeric',
+            'definition_paymentStatus' => 'boolean',
+            'definition_publicStatus' => 'boolean',
+            'daily_prices' => 'numeric',
+            'monthly_prices' => 'numeric',
+            'yearly_prices' => 'numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         $rates = Rates::find($definition_id);
         if ($rates != null) {
@@ -132,6 +174,12 @@ class RatesApi extends Controller
      */
     public function destroy(Request $request)
     {
+        $locale = $request->header('Accept-Language');
+
+        if ($locale) {
+            app()->setLocale($locale);
+        }
+
         $id = $request->id;
         $destroy = Rates::find($id);
         if ($destroy != null) {
